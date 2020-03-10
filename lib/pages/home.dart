@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:headless_cms_nodejs/pages/registration.dart';
-import 'package:headless_cms_nodejs/api_connection/conn.dart';
+import 'package:headless_cms_nodejs/api_connection/login_check.dart';
 import 'package:headless_cms_nodejs/securePages/s_home.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 
@@ -27,6 +27,29 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Login failed!"),
+          content: new Text("Wrong authentication!"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void sendInfo() async{
     ApiConn instance= ApiConn(email:email.text, password: password.text);
     await instance.getRes();
@@ -34,6 +57,8 @@ class _HomeState extends State<Home> {
       Navigator.pushAndRemoveUntil(
           context, MaterialPageRoute(builder: (context) => SecureHome()), (
           e) => false);
+    }else{
+      _showDialog();
     }
   }
 
@@ -80,7 +105,7 @@ class _HomeState extends State<Home> {
                 RaisedButton(
                   child: Text('Login'),
                   onPressed: (){
-                    sendInfo();
+                    email.text.isNotEmpty && password.text.isNotEmpty ? sendInfo() :
                     setState(() {
                       email.text.isEmpty ? _chkEmail = true : _chkEmail = false;
                       password.text.isEmpty ? _chkPass = true : _chkPass = false;
